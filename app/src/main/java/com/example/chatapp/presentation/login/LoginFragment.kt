@@ -52,9 +52,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             viewModel.login(email, password)
 
         }
-
         observeLogin()
-
     }
 
     private fun observeLogin() {
@@ -98,15 +96,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     }
 
                 }
-
             }
-
         }
-
     }
 
     private fun openHome() {
-
         findNavController()
             .navigate(R.id.action_login_to_chat)
 

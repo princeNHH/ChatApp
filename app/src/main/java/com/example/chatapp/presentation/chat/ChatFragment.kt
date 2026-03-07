@@ -23,7 +23,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private lateinit var messageInput: EditText
     private lateinit var sendButton: ImageButton
 
-    private val chatId = "chat_1"
+    private val roomId = "roomId"
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,7 +46,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
             if (text.isNotBlank()) {
 
-                viewModel.sendMessage(chatId, text)
+                viewModel.sendMessage(roomId, "text", messageInput.text.toString())
 
                 messageInput.setText("")
 
@@ -56,7 +56,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
         observeMessages()
 
-        viewModel.loadMessages(chatId)
+        viewModel.loadMessages(roomId)
 
     }
 

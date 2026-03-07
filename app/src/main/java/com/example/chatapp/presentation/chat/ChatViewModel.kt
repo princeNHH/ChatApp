@@ -3,7 +3,7 @@ package com.example.chatapp.presentation.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatapp.domain.model.Message
-import com.example.chatapp.domain.usecase.GetMessageUseCase
+import com.example.chatapp.domain.usecase.ObserveMessageUseCase
 import com.example.chatapp.domain.usecase.SendMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,28 +13,33 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val sendMessageUseCase: SendMessageUseCase,
-    private val getMessageUseCase: GetMessageUseCase
+    private val observeMessageUseCase: ObserveMessageUseCase
 ) : ViewModel() {
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages
 
-    fun loadMessages(chatId: String) {
+    fun loadMessages(roomId: String) {
         viewModelScope.launch {
-            getMessageUseCase(chatId).collect { messages ->
-                _messages.value = messages
+            observeMessageUseCase(roomId).collect {
+                _messages.value = it
             }
         }
     }
 
-    fun sendMessage(chatId: String, text: String) {
-        val message = Message(
-            chatId = chatId,
-            senderId = "currentUser",
-            message = text,
-            timestamp = System.currentTimeMillis()
-        )
+    fun sendMessage(
+        roomId: String,
+        senderId: String,
+        text: String
+    ) {
         viewModelScope.launch {
-            sendMessageUseCase(message)
+            sendMessageUseCase(
+                roomId,
+                Message(
+                    senderId = senderId,
+                    text = text,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
     }
 }

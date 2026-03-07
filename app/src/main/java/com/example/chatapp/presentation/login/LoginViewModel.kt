@@ -11,39 +11,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-
     private val loginUseCase: LoginUseCase
-
 ) : ViewModel() {
-
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-
     val loginState: StateFlow<LoginState> = _loginState
-
 
     fun login(email: String, password: String) {
 
         viewModelScope.launch {
-
             _loginState.value = LoginState.Loading
-
             val result = loginUseCase(email, password)
 
             result.onSuccess {
-
                 _loginState.value = LoginState.Success(it)
-
             }
 
             result.onFailure {
-
                 _loginState.value =
                     LoginState.Error(it.message)
-
             }
 
         }
-
     }
-
 }

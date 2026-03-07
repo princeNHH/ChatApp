@@ -44,9 +44,7 @@ class ChatAdapter :
             itemView.findViewById(R.id.txtMessage)
 
         fun bind(message: Message) {
-
-            text.text = message.message
-
+            text.text = message.text
         }
 
     }
@@ -58,18 +56,14 @@ class ChatAdapter :
             oldItem: Message,
             newItem: Message
         ): Boolean {
-
             return oldItem.id == newItem.id
-
         }
 
         override fun areContentsTheSame(
             oldItem: Message,
             newItem: Message
         ): Boolean {
-
             return oldItem == newItem
-
         }
 
     }
