@@ -1,4 +1,13 @@
 package com.example.chatapp.domain.usecase
 
-class SendMessageUseCase {
+import com.example.chatapp.domain.model.Message
+import com.example.chatapp.domain.repository.ChatRepository
+import javax.inject.Inject
+
+class SendMessageUseCase @Inject constructor(
+    private val repository: ChatRepository
+) {
+    suspend operator fun invoke(message: Message) {
+        repository.sendMessage(message)
+    }
 }
