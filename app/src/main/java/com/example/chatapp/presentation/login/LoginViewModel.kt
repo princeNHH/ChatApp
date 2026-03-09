@@ -16,6 +16,9 @@ class LoginViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
 
+    val isUserLoggedIn: Boolean
+        get() = loginUseCase.currentUser() != null
+
     fun login(email: String, password: String) {
 
         viewModelScope.launch {

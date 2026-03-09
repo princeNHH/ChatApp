@@ -17,9 +17,8 @@ class LoginUseCase @Inject constructor(
                 IllegalArgumentException("Email or password empty")
             )
         }
-
         return repository.login(email, password)
-
     }
 
+    fun currentUser() = repository.currentUser()
 }

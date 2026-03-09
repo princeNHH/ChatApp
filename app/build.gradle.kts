@@ -55,6 +55,7 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.59.2")
+    implementation(libs.androidx.lifecycle.process)
     ksp("com.google.dagger:hilt-android-compiler:2.59.2")
 
 

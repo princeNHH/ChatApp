@@ -19,7 +19,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object ChatModule {
     @Provides
     fun provideFirestore(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
