@@ -22,12 +22,4 @@ class AppLifecycleObserver @Inject constructor(
             }
         }
     }
-
-
-    override fun onStart(owner: LifecycleOwner) {
-        super.onStart(owner)
-        auth.currentUser?.uid?.let { uid ->
-            updateStatusRepository.updateOnlineStatus(uid)
-        }
-    }
 }

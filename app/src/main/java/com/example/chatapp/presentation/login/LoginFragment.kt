@@ -38,7 +38,10 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
+        super.onViewCreated(view, savedInstanceState)
+        if (viewModel.isUserLoggedIn) {
+            openHome()
+        }
         emailInput = view.findViewById(R.id.edtEmail)
         passwordInput = view.findViewById(R.id.edtPassword)
         loginButton = view.findViewById(R.id.btnLogin)
@@ -64,37 +67,26 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 when (state) {
 
                     is LoginState.Idle -> {
-
                         progress.visibility = View.GONE
-
                     }
 
                     is LoginState.Loading -> {
-
                         progress.visibility = View.VISIBLE
-
                     }
 
                     is LoginState.Success -> {
-
                         progress.visibility = View.GONE
-
                         openHome()
-
                     }
 
                     is LoginState.Error -> {
-
                         progress.visibility = View.GONE
-
                         Toast.makeText(
                             requireContext(),
                             state.message ?: "Login error",
                             Toast.LENGTH_LONG
                         ).show()
-
                     }
-
                 }
             }
         }
