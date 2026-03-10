@@ -1,15 +1,22 @@
 package com.example.chatapp.presentation.chat
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatapp.R
+import com.example.chatapp.databinding.FragmentChatBinding
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -17,64 +24,67 @@ import kotlinx.coroutines.launch
 class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     private val viewModel: ChatViewModel by viewModels()
+    private var _binding: FragmentChatBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: ChatAdapter
-    private lateinit var messageInput: EditText
-    private lateinit var sendButton: ImageButton
+    private val roomId = "roomId1"
+    private val currentUserId: String?
+        get() = FirebaseAuth.getInstance().currentUser?.uid
 
-    private val roomId = "roomId"
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChatBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val uid = currentUserId
+        if(uid == null){
+            findNavController().navigate(R.id.loginFragment)
+            return
+        }
+        val adapter = ChatAdapter(uid)
 
-        recyclerView = view.findViewById(R.id.recyclerChat)
-        messageInput = view.findViewById(R.id.edtMessage)
-        sendButton = view.findViewById(R.id.btnSend)
-
-        adapter = ChatAdapter()
-
-        recyclerView.layoutManager =
-            LinearLayoutManager(requireContext())
-
-        recyclerView.adapter = adapter
-
-
-        sendButton.setOnClickListener {
-
-            val text = messageInput.text.toString()
-
-            if (text.isNotBlank()) {
-
-                viewModel.sendMessage(roomId, "text", messageInput.text.toString())
-
-                messageInput.setText("")
-
-            }
-
+        binding.recyclerChat.apply {
+            this.adapter = adapter
+            layoutManager = LinearLayoutManager(requireContext())
         }
 
-        observeMessages()
 
+        binding.btnSend.setOnClickListener {
+            val text = binding.edtMessage.text.toString()
+
+            if (text.isNotBlank()) {
+                viewModel.sendMessage(roomId, uid, text)
+                binding.edtMessage.setText("")
+            }
+        }
+
+        observeMessages(adapter)
         viewModel.loadMessages(roomId)
-
     }
 
 
-    private fun observeMessages() {
+    private fun observeMessages(adapter: ChatAdapter) {
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-            viewModel.messages.collect {
-
-                adapter.submitList(it)
-
-                recyclerView.scrollToPosition(it.size - 1)
-
+                viewModel.messages.collect {
+                    adapter.submitList(it)
+                    binding.recyclerChat.scrollToPosition(it.size - 1)
+                }
             }
-
         }
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

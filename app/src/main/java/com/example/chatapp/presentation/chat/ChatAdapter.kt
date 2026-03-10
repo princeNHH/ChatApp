@@ -1,57 +1,81 @@
 package com.example.chatapp.presentation.chat
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatapp.R
+import com.example.chatapp.databinding.ItemMessageReceivedBinding
+import com.example.chatapp.databinding.ItemMessageSentBinding
 import com.example.chatapp.domain.model.Message
 
-class ChatAdapter :
-    ListAdapter<Message, ChatAdapter.ChatViewHolder>(DiffCallback()) {
+class ChatAdapter(
+    private val currentUserId: String
+) : ListAdapter<Message, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    companion object {
+        const val VIEW_TYPE_SENT = 1
+        const val VIEW_TYPE_RECEIVED = 2
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        val message = getItem(position)
+        return if (message.senderId == currentUserId) {
+            VIEW_TYPE_SENT
+        } else {
+            VIEW_TYPE_RECEIVED
+        }
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): ChatViewHolder {
-
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_message, parent, false)
-
-        return ChatViewHolder(view)
-
+    ): RecyclerView.ViewHolder {
+        if (viewType == VIEW_TYPE_SENT) {
+            val binding =
+                ItemMessageSentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return SendMessageViewHolder(binding)
+        } else {
+            val binding = ItemMessageReceivedBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+            return ReceiveMessageViewHolder(binding)
+        }
     }
-
 
     override fun onBindViewHolder(
-        holder: ChatViewHolder,
+        holder: RecyclerView.ViewHolder,
         position: Int
     ) {
-
-        holder.bind(getItem(position))
-
+        val message = getItem(position)
+        if (holder is SendMessageViewHolder) {
+            holder.bind(message)
+        } else if (holder is ReceiveMessageViewHolder) {
+            holder.bind(message)
+        }
     }
 
 
-    class ChatViewHolder(
-        itemView: View
-    ) : RecyclerView.ViewHolder(itemView) {
-
-        private val text: TextView =
-            itemView.findViewById(R.id.txtMessage)
-
+    class SendMessageViewHolder(
+        private val binding: ItemMessageSentBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message) {
-            text.text = message.text
+            binding.message.text = message.text
         }
+    }
 
+    class ReceiveMessageViewHolder(
+        private val binding: ItemMessageReceivedBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(message: Message) {
+            binding.message.text = message.text
+        }
     }
 
 
     class DiffCallback : DiffUtil.ItemCallback<Message>() {
-
         override fun areItemsTheSame(
             oldItem: Message,
             newItem: Message
@@ -65,7 +89,5 @@ class ChatAdapter :
         ): Boolean {
             return oldItem == newItem
         }
-
     }
-
 }
